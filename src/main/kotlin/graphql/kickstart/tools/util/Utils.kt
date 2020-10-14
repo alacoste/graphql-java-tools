@@ -37,8 +37,13 @@ internal fun JavaType.unwrap(): Class<out Any> =
     }
 
 internal fun DataFetchingEnvironment.coroutineScope(): CoroutineScope {
+    val localContext: Any? = this.getLocalContext()
     val context: Any? = this.getContext()
-    return if (context is CoroutineScope) context else CoroutineScope(Dispatchers.Default)
+    return when {
+        localContext is CoroutineScope -> localContext
+        context is CoroutineScope -> context
+        else -> CoroutineScope(Dispatchers.Default)
+    }
 }
 
 internal val Class<*>.declaredNonProxyMethods: List<JavaMethod>
